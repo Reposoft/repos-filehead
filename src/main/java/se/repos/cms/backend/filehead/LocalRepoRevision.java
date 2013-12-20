@@ -9,7 +9,11 @@ import se.simonsoft.cms.item.RepoRevision;
 
 public class LocalRepoRevision extends RepoRevision {
 
-    protected LocalRepoRevision(Date revisionTimestamp) {
+    public LocalRepoRevision() {
+        this(new Date());
+    }
+
+    public LocalRepoRevision(Date revisionTimestamp) {
         super(revisionTimestamp);
     }
 }

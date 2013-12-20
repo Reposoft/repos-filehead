@@ -3,8 +3,6 @@
  */
 package se.repos.cms.backend.filehead;
 
-import java.util.Date;
-
 import javax.inject.Inject;
 
 import se.simonsoft.cms.item.CmsItemLock;
@@ -43,7 +41,7 @@ public class LocalCmsCommit implements CmsCommit {
                                 + change.getClass().getSimpleName());
             }
         }
-        return new LocalRepoRevision(new Date());
+        return new LocalRepoRevision();
     }
 
     private static void handle(FileModification change) {
