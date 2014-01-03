@@ -17,6 +17,8 @@ import se.simonsoft.cms.item.commit.CmsPatchset;
 import se.simonsoft.cms.item.commit.FileAdd;
 import se.simonsoft.cms.item.commit.FileDelete;
 import se.simonsoft.cms.item.commit.FileModification;
+import se.simonsoft.cms.item.commit.FolderAdd;
+import se.simonsoft.cms.item.commit.FolderDelete;
 
 public class LocalCmsCommit implements CmsCommit {
     private CmsRepository repository;
@@ -35,6 +37,10 @@ public class LocalCmsCommit implements CmsCommit {
                 LocalCmsCommit.handle((FileAdd) change);
             } else if (change instanceof FileDelete) {
                 LocalCmsCommit.handle((FileDelete) change);
+            } else if (change instanceof FolderAdd) {
+                LocalCmsCommit.handle((FolderAdd) change);
+            } else if (change instanceof FolderDelete) {
+                LocalCmsCommit.handle((FolderDelete) change);
             } else {
                 throw new UnsupportedOperationException(
                         "Filesystem modification not supported for change type "
@@ -42,6 +48,16 @@ public class LocalCmsCommit implements CmsCommit {
             }
         }
         return new LocalRepoRevision();
+    }
+
+    private static void handle(FolderDelete change) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    private static void handle(FolderAdd change) {
+        // TODO Auto-generated method stub
+        
     }
 
     private static void handle(FileModification change) {
