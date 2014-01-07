@@ -5,6 +5,7 @@ package se.repos.cms.backend.filehead;
 
 import javax.inject.Inject;
 
+import se.repos.authproxy.ReposCurrentUser;
 import se.simonsoft.cms.item.CmsItemLock;
 import se.simonsoft.cms.item.CmsItemLockCollection;
 import se.simonsoft.cms.item.CmsItemPath;
@@ -22,25 +23,27 @@ import se.simonsoft.cms.item.commit.FolderDelete;
 
 public class LocalCmsCommit implements CmsCommit {
     private CmsRepository repository;
+    private ReposCurrentUser currentUser;
 
     @Inject
-    public void setRepository(CmsRepository repository) {
+    public LocalCmsCommit(CmsRepository repository, ReposCurrentUser currentUser) {
         this.repository = repository;
+        this.currentUser = currentUser;
     }
 
     @Override
     public RepoRevision run(CmsPatchset fileModifications) throws CmsItemLockedException {
         for (CmsPatchItem change : fileModifications) {
             if (change instanceof FileModification) {
-                LocalCmsCommit.handle((FileModification) change);
+                this.handle((FileModification) change);
             } else if (change instanceof FileAdd) {
-                LocalCmsCommit.handle((FileAdd) change);
+                this.handle((FileAdd) change);
             } else if (change instanceof FileDelete) {
-                LocalCmsCommit.handle((FileDelete) change);
+                this.handle((FileDelete) change);
             } else if (change instanceof FolderAdd) {
-                LocalCmsCommit.handle((FolderAdd) change);
+                this.handle((FolderAdd) change);
             } else if (change instanceof FolderDelete) {
-                LocalCmsCommit.handle((FolderDelete) change);
+                this.handle((FolderDelete) change);
             } else {
                 throw new UnsupportedOperationException(
                         "Filesystem modification not supported for change type "
@@ -50,18 +53,17 @@ public class LocalCmsCommit implements CmsCommit {
         return new LocalRepoRevision();
     }
 
-    private static void handle(FolderDelete change) {
+    private void handle(FolderDelete change) {
         // TODO Auto-generated method stub
-        
     }
 
-    private static void handle(FolderAdd change) {
+    private void handle(FolderAdd change) {
         // TODO Auto-generated method stub
-        
     }
 
-    private static void handle(FileModification change) {
-        LocalCmsItem changedItem = new LocalCmsItem(change.getPath());
+    private void handle(FileModification change) {
+        LocalCmsItem changedItem = new LocalCmsItem(this.repository, this.currentUser,
+                change.getPath());
         if (!changedItem.exists()) {
             throw new RuntimeException("Could not find modified item: "
                     + change.getPath());
@@ -69,13 +71,15 @@ public class LocalCmsCommit implements CmsCommit {
         changedItem.writeContents(change.getWorkingFile());
     }
 
-    private static void handle(FileAdd change) {
-        LocalCmsItem newItem = new LocalCmsItem(change.getPath());
+    private void handle(FileAdd change) {
+        LocalCmsItem newItem = new LocalCmsItem(this.repository, this.currentUser,
+                change.getPath());
         newItem.writeContents(change.getWorkingFile());
     }
 
-    private static void handle(FileDelete change) {
-        LocalCmsItem deletedItem = new LocalCmsItem(change.getPath());
+    private void handle(FileDelete change) {
+        LocalCmsItem deletedItem = new LocalCmsItem(this.repository, this.currentUser,
+                change.getPath());
         deletedItem.delete();
     }
 
@@ -84,7 +88,8 @@ public class LocalCmsCommit implements CmsCommit {
             CmsItemPath... item) throws CmsItemLockedException {
         LocalCmsItemLockCollection locks = new LocalCmsItemLockCollection(this.repository);
         for (CmsItemPath toLock : item) {
-            locks.add(LocalCmsItemLock.createLocalLock(this.repository, toLock, message));
+            locks.add(LocalCmsItemLock.createLocalLock(this.repository, this.currentUser,
+                    toLock, message));
         }
         return locks;
     }

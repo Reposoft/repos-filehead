@@ -20,27 +20,21 @@ import se.simonsoft.cms.item.commit.CmsItemLockedException;
 import se.simonsoft.cms.item.impl.CmsItemIdUrl;
 
 public class LocalCmsItemLock implements CmsItemLock {
-    private CmsItemPath lockPath;
-
     private CmsRepository repository;
     private ReposCurrentUser currentUser;
+    private CmsItemPath lockPath;
 
     @Inject
-    public void setRepository(CmsRepository repository) {
+    private LocalCmsItemLock(CmsRepository repository, ReposCurrentUser currentUser,
+            CmsItemPath lockPath) {
         this.repository = repository;
-    }
-
-    @Inject
-    public void setReposCurrentUser(ReposCurrentUser currentUser) {
         this.currentUser = currentUser;
-    }
-
-    private LocalCmsItemLock(CmsItemPath lockPath) {
         this.lockPath = lockPath;
     }
 
     public static LocalCmsItemLock createLocalLock(CmsRepository repository,
-            CmsItemPath lockedItem, String lockComment) throws CmsItemLockedException {
+            ReposCurrentUser currentUser, CmsItemPath lockedItem, String lockComment)
+            throws CmsItemLockedException {
         if (isLocked(repository, lockedItem)) {
             throw new CmsItemLockedException(repository, lockedItem);
         }
@@ -54,16 +48,16 @@ public class LocalCmsItemLock implements CmsItemLock {
         } catch (IOException e) {
             throw new RuntimeException(e.getCause());
         }
-        return new LocalCmsItemLock(lockPath);
+        return new LocalCmsItemLock(repository, currentUser, lockPath);
     }
 
     public static LocalCmsItemLock getLocalLock(CmsRepository repository,
-            CmsItemPath lockedItem) {
+            ReposCurrentUser currentUser, CmsItemPath lockedItem) {
         if (!isLocked(repository, lockedItem)) {
             return null;
         }
         CmsItemPath lockPath = getLockPath(lockedItem);
-        return new LocalCmsItemLock(lockPath);
+        return new LocalCmsItemLock(repository, currentUser, lockPath);
     }
 
     public static boolean isLocked(CmsRepository repository, CmsItemPath item) {

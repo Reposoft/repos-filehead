@@ -34,21 +34,14 @@ import se.simonsoft.cms.item.properties.CmsItemProperties;
 
 public class LocalCmsItem implements CmsItem {
     private CmsItemPath path;
-
     private CmsRepository repository;
     private ReposCurrentUser currentUser;
 
     @Inject
-    public void setRepository(CmsRepository repository) {
+    public LocalCmsItem(CmsRepository repository, ReposCurrentUser currentUser,
+            CmsItemPath path) {
         this.repository = repository;
-    }
-
-    @Inject
-    public void setReposCurrentUser(ReposCurrentUser currentUser) {
         this.currentUser = currentUser;
-    }
-
-    public LocalCmsItem(CmsItemPath path) {
         this.path = path;
     }
 
@@ -62,7 +55,8 @@ public class LocalCmsItem implements CmsItem {
             return children;
         }
         for (File child : this.getTrackedFile().listFiles()) {
-            children.add(new LocalCmsItem(this.path.append(child.getName())));
+            children.add(new LocalCmsItem(this.repository, this.currentUser, this.path
+                    .append(child.getName())));
         }
         return children;
     }

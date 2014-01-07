@@ -8,6 +8,7 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
+import se.repos.authproxy.ReposCurrentUser;
 import se.simonsoft.cms.item.CmsItem;
 import se.simonsoft.cms.item.CmsItemId;
 import se.simonsoft.cms.item.CmsItemKind;
@@ -20,10 +21,12 @@ import se.simonsoft.cms.item.info.CmsItemNotFoundException;
 
 public class LocalCmsItemLookup implements CmsItemLookup {
     private CmsRepository repository;
+    private ReposCurrentUser currentUser;
 
     @Inject
-    public void setRepository(CmsRepository repository) {
+    public LocalCmsItemLookup(CmsRepository repository, ReposCurrentUser currentUser) {
         this.repository = repository;
+        this.currentUser = currentUser;
     }
 
     @Override
@@ -34,7 +37,7 @@ public class LocalCmsItemLookup implements CmsItemLookup {
 
     private LocalCmsItem getLocalCmsItem(CmsItemId id) throws CmsItemNotFoundException {
         CmsItemPath itemPath = id.getRelPath();
-        LocalCmsItem file = new LocalCmsItem(itemPath);
+        LocalCmsItem file = new LocalCmsItem(this.repository, this.currentUser, itemPath);
         if (!file.exists()) {
             throw new CmsItemNotFoundException(this.repository, itemPath);
         }
@@ -117,6 +120,7 @@ public class LocalCmsItemLookup implements CmsItemLookup {
 
     @Override
     public CmsItemLock getLocked(CmsItemId itemId) {
-        return LocalCmsItemLock.getLocalLock(this.repository, itemId.getRelPath());
+        return LocalCmsItemLock.getLocalLock(this.repository, this.currentUser,
+                itemId.getRelPath());
     }
 }
