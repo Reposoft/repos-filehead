@@ -40,6 +40,13 @@ public class LocalCmsItem implements CmsItem {
     @Inject
     public LocalCmsItem(CmsRepository repository, ReposCurrentUser currentUser,
             CmsItemPath path) {
+        if (repository == null || currentUser == null) {
+            throw new NullPointerException();
+        }
+        if (path != null && path.getPath().startsWith(repository.getPath())) {
+            throw new IllegalArgumentException("Item path " + path.getPath()
+                    + " is not relative to repository root.");
+        }
         this.repository = repository;
         this.currentUser = currentUser;
         this.path = path;
@@ -62,8 +69,9 @@ public class LocalCmsItem implements CmsItem {
     }
 
     private File getTrackedFile() {
-        String filePath = this.repository.getPath() + this.path.getPath();
-        return new File(filePath);
+        String repoPath = this.repository.getPath();
+        String relativeItemPath = this.path != null ? this.path.getPath() : "";
+        return new File(repoPath + relativeItemPath);
     }
 
     @Override
