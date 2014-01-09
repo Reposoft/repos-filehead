@@ -39,7 +39,14 @@ public class LocalCmsItemLookup implements CmsItemLookup {
         CmsItemPath itemPath = id.getRelPath();
         LocalCmsItem file = new LocalCmsItem(this.repository, this.currentUser, itemPath);
         if (!file.exists()) {
-            throw new CmsItemNotFoundException(this.repository, itemPath);
+            String newPathString;
+            if (itemPath.getPath().startsWith(this.repository.getPath())) {
+                newPathString = itemPath.getPath().substring(this.repository.getPath().length());
+            } else {
+                newPathString = itemPath.getPath();
+            }
+            CmsItemPath newPath = new CmsItemPath(newPathString);
+            throw new CmsItemNotFoundException(this.repository, newPath);
         }
         return file;
     }
