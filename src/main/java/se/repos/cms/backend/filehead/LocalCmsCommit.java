@@ -34,16 +34,18 @@ public class LocalCmsCommit implements CmsCommit {
     @Override
     public RepoRevision run(CmsPatchset fileModifications) throws CmsItemLockedException {
         for (CmsPatchItem change : fileModifications) {
+            LocalCmsItem changedItem = new LocalCmsItem(this.repository,
+                    this.currentUser, change.getPath());
             if (change instanceof FileModification) {
-                this.handle((FileModification) change);
+                changedItem.writeContents(((FileModification) change).getWorkingFile());
             } else if (change instanceof FileAdd) {
-                this.handle((FileAdd) change);
+                changedItem.writeContents(((FileAdd) change).getWorkingFile());
             } else if (change instanceof FileDelete) {
-                this.handle((FileDelete) change);
+                changedItem.delete();
             } else if (change instanceof FolderAdd) {
-                this.handle((FolderAdd) change);
+                changedItem.mkdir();
             } else if (change instanceof FolderDelete) {
-                this.handle((FolderDelete) change);
+                changedItem.delete();
             } else {
                 throw new UnsupportedOperationException(
                         "Filesystem modification not supported for change type "
@@ -51,36 +53,6 @@ public class LocalCmsCommit implements CmsCommit {
             }
         }
         return new LocalRepoRevision();
-    }
-
-    private void handle(FolderDelete change) {
-        // TODO Auto-generated method stub
-    }
-
-    private void handle(FolderAdd change) {
-        // TODO Auto-generated method stub
-    }
-
-    private void handle(FileModification change) {
-        LocalCmsItem changedItem = new LocalCmsItem(this.repository, this.currentUser,
-                change.getPath());
-        if (!changedItem.exists()) {
-            throw new RuntimeException("Could not find modified item: "
-                    + change.getPath());
-        }
-        changedItem.writeContents(change.getWorkingFile());
-    }
-
-    private void handle(FileAdd change) {
-        LocalCmsItem newItem = new LocalCmsItem(this.repository, this.currentUser,
-                change.getPath());
-        newItem.writeContents(change.getWorkingFile());
-    }
-
-    private void handle(FileDelete change) {
-        LocalCmsItem deletedItem = new LocalCmsItem(this.repository, this.currentUser,
-                change.getPath());
-        deletedItem.delete();
     }
 
     @Override

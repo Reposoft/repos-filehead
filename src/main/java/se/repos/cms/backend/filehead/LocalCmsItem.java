@@ -40,16 +40,17 @@ public class LocalCmsItem implements CmsItem {
     @Inject
     public LocalCmsItem(CmsRepository repository, ReposCurrentUser currentUser,
             CmsItemPath path) {
-        if (repository == null || currentUser == null || path == null) {
+        if (repository == null || currentUser == null) {
             throw new NullPointerException();
         }
-        if (!path.getPath().startsWith(repository.getPath())) {
-            throw new IllegalArgumentException("Item path " + path.getPath()
-                    + " is not under the repository root.");
+        
+        if(path == null) {
+            this.path = new CmsItemPath(repository.getPath());
+        } else {
+            this.path = path;
         }
         this.repository = repository;
         this.currentUser = currentUser;
-        this.path = path;
     }
 
     public boolean exists() {
@@ -198,5 +199,12 @@ public class LocalCmsItem implements CmsItem {
      */
     public void delete() {
         this.getTrackedFile().delete();
+    }
+    
+    /**
+     * Creates a directory with the path given by this item.
+     */
+    public void mkdir() {
+        this.getTrackedFile().mkdirs();
     }
 }
