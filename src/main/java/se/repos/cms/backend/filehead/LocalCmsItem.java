@@ -164,7 +164,7 @@ public class LocalCmsItem implements CmsItem {
 
     @Override
     public long getFilesize() {
-        return this.getTrackedFile().getTotalSpace();
+        return this.getTrackedFile().length();
     }
 
     @Override
