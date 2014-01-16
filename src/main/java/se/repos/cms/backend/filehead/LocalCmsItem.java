@@ -43,8 +43,8 @@ public class LocalCmsItem implements CmsItem {
         if (repository == null || currentUser == null) {
             throw new NullPointerException();
         }
-        
-        if(path == null) {
+
+        if (path == null) {
             this.path = new CmsItemPath(repository.getPath());
         } else {
             this.path = path;
@@ -174,9 +174,9 @@ public class LocalCmsItem implements CmsItem {
             fis = new FileInputStream(this.getTrackedFile());
             IOUtils.copy(fis, receiver);
         } catch (FileNotFoundException e) {
-            throw new RuntimeException(e.getCause());
+            throw new RuntimeException(e);
         } catch (IOException e) {
-            throw new RuntimeException(e.getCause());
+            throw new RuntimeException(e);
         } finally {
             IOUtils.closeQuietly(fis);
         }
@@ -198,9 +198,16 @@ public class LocalCmsItem implements CmsItem {
      * Deletes the file this CmsItem tracks.
      */
     public void delete() {
-        this.getTrackedFile().delete();
+        if (this.getKind() == CmsItemKind.Folder) {
+            for (LocalCmsItem item : this.getChildItems()) {
+                item.delete();
+            }
+        }
+        if (!this.getTrackedFile().delete()) {
+            throw new RuntimeException("Failed to delete local file: " + this.path);
+        }
     }
-    
+
     /**
      * Creates a directory with the path given by this item.
      */
