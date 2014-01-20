@@ -3,7 +3,7 @@
  */
 package se.repos.cms.backend.filehead;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -63,7 +63,7 @@ public class LocalCmsItemLookup implements CmsItemLookup {
     @Override
     public Set<CmsItemId> getImmediateFolders(CmsItemId parent)
             throws CmsConnectionException, CmsItemNotFoundException {
-        Set<CmsItemId> immediates = new HashSet<CmsItemId>();
+        Set<CmsItemId> immediates = new LinkedHashSet<CmsItemId>();
         for (LocalCmsItem item : this.getLocalImmediates(parent, ItemType.FOLDER)) {
             immediates.add(item.getId());
         }
@@ -73,7 +73,7 @@ public class LocalCmsItemLookup implements CmsItemLookup {
     @Override
     public Set<CmsItemId> getImmediateFiles(CmsItemId parent)
             throws CmsConnectionException, CmsItemNotFoundException {
-        Set<CmsItemId> immediates = new HashSet<CmsItemId>();
+        Set<CmsItemId> immediates = new LinkedHashSet<CmsItemId>();
         for (LocalCmsItem item : this.getLocalImmediates(parent, ItemType.FILE)) {
             immediates.add(item.getId());
         }
@@ -83,7 +83,7 @@ public class LocalCmsItemLookup implements CmsItemLookup {
     @Override
     public Set<CmsItem> getImmediates(CmsItemId parent) throws CmsConnectionException,
             CmsItemNotFoundException {
-        Set<CmsItem> immediates = new HashSet<CmsItem>();
+        Set<CmsItem> immediates = new LinkedHashSet<CmsItem>();
         immediates.addAll(this.getLocalImmediates(parent, ItemType.BOTH));
         return immediates;
     }
@@ -95,7 +95,7 @@ public class LocalCmsItemLookup implements CmsItemLookup {
 
     private static Set<LocalCmsItem> getLocalImmediates(LocalCmsItem parent,
             ItemType itemType) {
-        Set<LocalCmsItem> localImmediates = new HashSet<LocalCmsItem>();
+        Set<LocalCmsItem> localImmediates = new LinkedHashSet<LocalCmsItem>();
         for (LocalCmsItem child : parent.getChildItems()) {
             boolean add = false;
             switch (itemType) {
@@ -118,7 +118,7 @@ public class LocalCmsItemLookup implements CmsItemLookup {
 
     @Override
     public Iterable<CmsItemId> getDescendants(CmsItemId parent) {
-        Set<CmsItemId> children = new HashSet<CmsItemId>();
+        Set<CmsItemId> children = new LinkedHashSet<CmsItemId>();
         this.getLocalDescendants(children, this.getLocalCmsItem(parent));
         return children;
     }
