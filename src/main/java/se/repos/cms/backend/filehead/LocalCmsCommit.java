@@ -24,18 +24,24 @@ import se.simonsoft.cms.item.commit.FolderDelete;
 public class LocalCmsCommit implements CmsCommit {
     private CmsRepository repository;
     private ReposCurrentUser currentUser;
+    private RepoRevision currentRevision;
 
     @Inject
-    public LocalCmsCommit(CmsRepository repository, ReposCurrentUser currentUser) {
+    public LocalCmsCommit(CmsRepository repository, ReposCurrentUser currentUser,
+            RepoRevision currentRevision) {
+        if (repository == null || currentUser == null || currentRevision == null) {
+            throw new NullPointerException();
+        }
         this.repository = repository;
         this.currentUser = currentUser;
+        this.currentRevision = currentRevision;
     }
 
     @Override
     public RepoRevision run(CmsPatchset fileModifications) throws CmsItemLockedException {
         for (CmsPatchItem change : fileModifications) {
             LocalCmsItem changedItem = new LocalCmsItem(this.repository,
-                    this.currentUser, change.getPath());
+                    this.currentUser, change.getPath(), this.currentRevision);
             if (change instanceof FileModification) {
                 changedItem.writeContents(((FileModification) change).getWorkingFile());
             } else if (change instanceof FileAdd) {
@@ -52,7 +58,7 @@ public class LocalCmsCommit implements CmsCommit {
                                 + change.getClass().getSimpleName());
             }
         }
-        return new LocalRepoRevision();
+        return this.currentRevision;
     }
 
     @Override

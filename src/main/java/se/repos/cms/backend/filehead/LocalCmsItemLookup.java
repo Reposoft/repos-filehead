@@ -15,6 +15,7 @@ import se.simonsoft.cms.item.CmsItemKind;
 import se.simonsoft.cms.item.CmsItemLock;
 import se.simonsoft.cms.item.CmsItemPath;
 import se.simonsoft.cms.item.CmsRepository;
+import se.simonsoft.cms.item.RepoRevision;
 import se.simonsoft.cms.item.info.CmsConnectionException;
 import se.simonsoft.cms.item.info.CmsItemLookup;
 import se.simonsoft.cms.item.info.CmsItemNotFoundException;
@@ -22,11 +23,17 @@ import se.simonsoft.cms.item.info.CmsItemNotFoundException;
 public class LocalCmsItemLookup implements CmsItemLookup {
     private CmsRepository repository;
     private ReposCurrentUser currentUser;
+    private RepoRevision currentRevision;
 
     @Inject
-    public LocalCmsItemLookup(CmsRepository repository, ReposCurrentUser currentUser) {
+    public LocalCmsItemLookup(CmsRepository repository, ReposCurrentUser currentUser,
+            RepoRevision currentRevision) {
+        if (repository == null || currentUser == null || currentRevision == null) {
+            throw new NullPointerException();
+        }
         this.repository = repository;
         this.currentUser = currentUser;
+        this.currentRevision = currentRevision;
     }
 
     @Override
@@ -37,11 +44,13 @@ public class LocalCmsItemLookup implements CmsItemLookup {
 
     private LocalCmsItem getLocalCmsItem(CmsItemId id) throws CmsItemNotFoundException {
         CmsItemPath itemPath = id.getRelPath();
-        LocalCmsItem file = new LocalCmsItem(this.repository, this.currentUser, itemPath);
+        LocalCmsItem file = new LocalCmsItem(this.repository, this.currentUser, itemPath,
+                this.currentRevision);
         if (!file.exists()) {
             String newPathString;
             if (itemPath.getPath().startsWith(this.repository.getPath())) {
-                newPathString = itemPath.getPath().substring(this.repository.getPath().length());
+                newPathString = itemPath.getPath().substring(
+                        this.repository.getPath().length());
             } else {
                 newPathString = itemPath.getPath();
             }

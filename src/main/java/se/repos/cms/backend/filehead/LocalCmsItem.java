@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -36,11 +35,12 @@ public class LocalCmsItem implements CmsItem {
     private CmsItemPath path;
     private CmsRepository repository;
     private ReposCurrentUser currentUser;
+    private RepoRevision currentRevision;
 
     @Inject
     public LocalCmsItem(CmsRepository repository, ReposCurrentUser currentUser,
-            CmsItemPath path) {
-        if (repository == null || currentUser == null) {
+            CmsItemPath path, RepoRevision currentRevision) {
+        if (repository == null || currentUser == null || currentRevision == null) {
             throw new NullPointerException();
         }
 
@@ -51,6 +51,7 @@ public class LocalCmsItem implements CmsItem {
         }
         this.repository = repository;
         this.currentUser = currentUser;
+        this.currentRevision = currentRevision;
     }
 
     public boolean exists() {
@@ -64,7 +65,7 @@ public class LocalCmsItem implements CmsItem {
         }
         for (File child : this.getTrackedFile().listFiles()) {
             children.add(new LocalCmsItem(this.repository, this.currentUser, this.path
-                    .append(child.getName())));
+                    .append(child.getName()), this.currentRevision));
         }
         return children;
     }
@@ -80,8 +81,7 @@ public class LocalCmsItem implements CmsItem {
 
     @Override
     public RepoRevision getRevisionChanged() {
-        long lastModified = this.getTrackedFile().lastModified();
-        return new LocalRepoRevision(new Date(lastModified));
+        return this.currentRevision;
     }
 
     @Override
