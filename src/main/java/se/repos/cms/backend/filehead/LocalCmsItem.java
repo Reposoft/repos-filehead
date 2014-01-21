@@ -31,6 +31,8 @@ import se.simonsoft.cms.item.impl.ChecksumBase;
 import se.simonsoft.cms.item.impl.CmsItemIdUrl;
 import se.simonsoft.cms.item.properties.CmsItemProperties;
 
+// TODO Get operations in CmsItem for moving items.
+// TODO Get a constant item ID in CmsItem.
 public class LocalCmsItem implements CmsItem {
     private CmsItemPath path;
     private CmsRepository repository;
@@ -123,6 +125,10 @@ public class LocalCmsItem implements CmsItem {
     }
 
     private String calculateFileMD5() {
+        if (this.getKind() == CmsItemKind.Folder) {
+            throw new UnsupportedOperationException("Cannot checksum the folder: "
+                    + this.path);
+        }
         FileInputStream fis = null;
         try {
             fis = new FileInputStream(this.getTrackedFile());
@@ -164,11 +170,18 @@ public class LocalCmsItem implements CmsItem {
 
     @Override
     public long getFilesize() {
+        if (this.getKind() == CmsItemKind.Folder) {
+            return 0L;
+        }
         return this.getTrackedFile().length();
     }
 
     @Override
     public void getContents(OutputStream receiver) {
+        if (this.getKind() == CmsItemKind.Folder) {
+            throw new UnsupportedOperationException(
+                    "Cannot get data stream from folder: " + this.path);
+        }
         FileInputStream fis = null;
         try {
             fis = new FileInputStream(this.getTrackedFile());
@@ -187,6 +200,10 @@ public class LocalCmsItem implements CmsItem {
      * stream.
      */
     public void writeContents(InputStream data) {
+        if (this.getKind() == CmsItemKind.Folder) {
+            throw new UnsupportedOperationException(
+                    "Cannot write data stream to folder: " + this.path);
+        }
         try {
             FileUtils.copyInputStreamToFile(data, this.getTrackedFile());
         } catch (IOException e) {
