@@ -31,8 +31,6 @@ import se.simonsoft.cms.item.impl.ChecksumBase;
 import se.simonsoft.cms.item.impl.CmsItemIdUrl;
 import se.simonsoft.cms.item.properties.CmsItemProperties;
 
-// TODO Get operations in CmsItem for moving items.
-// TODO Get a constant item ID in CmsItem.
 public class LocalCmsItem implements CmsItem {
     private CmsItemPath path;
     private CmsRepository repository;
